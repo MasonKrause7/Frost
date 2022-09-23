@@ -38,14 +38,16 @@ public class ApplicationContainer {
                     Field[] fieldArr = currentClass.getFields();
 
                     //check for @inject in constructors
-                    for (Constructor c : constArr) { //checks each constructor in the currentClass for an annotation.
-                        if(c.getAnnotations().length != 0){//if annotation is present!
-                            Class<?>[] dependenciesToBeInjected = c.getParameterTypes();//get the parameter(s) of the constructor, only handling one param for now
-                            for (Class clas : dependenciesToBeInjected   ) {
+                    for (Constructor outterConstructor : constArr) { //checks each constructor in the currentClass for an annotation.
+                        if(outterConstructor.getAnnotations().length != 0){//if annotation is present!
+                            Class<?>[] dependenciesToBeInjected = outterConstructor.getParameterTypes();//get the parameter(s) of the constructor, only handling one param for now
+                            for (Class dependencyClass : dependenciesToBeInjected   ) {
                                 //get this dependencies constructor to check it for dependencies and then instantiate the obj
-                                Constructor[] dependenciesConstArr = clas.getConstructors();
+                                Constructor[] dependenciesConstArr = dependencyClass.getConstructors();
                                 for (int i = 0; i < dependenciesConstArr.length; i++){
-                                    System.out.printf("Constructor of %s depends on %s\n", c.getName() ,clas.getName() );//prints the name of the obj and the dependency
+                                    System.out.printf("Constructor of %s depends on %s\n", outterConstructor.getName() ,dependencyClass.getName() );//prints the name of the obj and the dependency
+                                    //need to instantiate the object and then give it back to the Constructor c.
+
                                 }
                             }
 
