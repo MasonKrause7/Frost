@@ -40,7 +40,8 @@ public class ApplicationContainer {
 
                     //check for @inject in constructors
                     for (Constructor c : constArr) { //checks each constructor in the currentClass for an annotation.
-                        if(c.getAnnotations().length != 0){//if annotation is present!
+                        if(c.getAnnotations().length != 0){//if
+                            System.out.println("number of annotaions in constructor " + c.getAnnotations().length);// annotation is present!
                             Class<?>[] dependenciesToBeInjected = c.getParameterTypes();//get the parameter(s) of the constructor, only handling one param for now
                             for (Class clas : dependenciesToBeInjected   ) {
                                 //get this dependencies constructor to check it for dependencies and then instantiate the obj
