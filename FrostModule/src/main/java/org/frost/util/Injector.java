@@ -29,35 +29,55 @@ public class Injector {
 
         Map<Class, List<Object>> dependencyMap = scanClasses();
 
-        System.out.println(dependencyMap.toString());//testing the dependency map
+        System.out.println("dependencyMap : " + dependencyMap.entrySet().toString());//testing the dependency map
 
-        for(int i = 0; i < dependencyMap.size(); i++ ) { //for each class in the dependency map
-            Class<?> cl = dependencyMap.getClass();
+        for (Class cl : dependencyMap.keySet()) { //for each class in the dependency map
+
             Constructor[] constructors = cl.getConstructors(); //get its constructors
-            for ( Constructor constructor: constructors ) {
-                if(constructor.getAnnotations().length > 0){//if the constructor is annotated with @Inject --> inject the dependencies and create a new instance
+            for (Constructor constructor : constructors) {
+                if (constructor.getAnnotations().length > 0) {//if the constructor is annotated with @Inject --> inject the dependencies and create a new instance
 
                     //creating the object using the dependency objects that are in the dependencyMap
-                    Object obj = constructor.newInstance(dependencyMap.get(cl));
+                    List<Object> dependencyList = dependencyMap.get(cl);//returns
 
-                    objectMap.put(cl, obj);//
+
+
+
+                        //BUG - CANT FIGURE OUT HOW TO GET THE CORRECT NUMBER OF ARGUMENTS TO THE CONSTRUCTOR WITHOUT KNOWING THE PARAMETERS AHEAD OF TIME
+                        //BECAUSE YOU CANT ITERATE THROUGH A LIST OF OBJECTS AND GIVE EACH ONE AS A PARAMETER TO THE CONSTRUCTOR
+
+                        //using magic numbers right now
+
+
+
+                        Object obj = constructor.newInstance(dependencyList.get(0), dependencyList.get(1) );//just creating a generic object to test the mapping process, NOT injecting the dependencies yet.
+
+
+                        objectMap.put(cl, obj);//
+                    }
                 }
-            }
-            //This line uses the classes constructor to create a new instance,
-            //using its
+                //This line uses the classes constructor to create a new instance,
+                //using its
 
-        }
+            }
         return objectMap;
-    }
+        }
+
+
 
     private Map scanClasses() throws Exception{
-        HashMap<Class, List<Object>> dependencyMap = new HashMap<>();//dependentToDependencies
+        HashMap<Class, List<Object>> dependencyMap1 = new HashMap<>();
         List<Object> objectList = new ArrayList<>();
         for ( Class currentClass : classSet ) {//for each class in classSet --> check their annotations
             Annotation[] annotations = currentClass.getAnnotations();
             if(annotations.length > 0){//if this class is annotated --> get its Constructors
                 Constructor[] outterConstructors = currentClass.getConstructors();
                 for (Constructor outterConstructor: outterConstructors ) { //for each constructor -->check their annotations for @inject
+
+                    //Do we need to create an object for every constructor in the class that has the @inject? Should we make it for
+                    //fields instead so we know we're only making the one dependency that will be used for that class?
+
+                    //this should work for now because were only using one constructor at a time with the @inject
 
                     //here is where we could potentially look at recursively checking the deeper constructor for dependency parameters.
 
@@ -80,12 +100,14 @@ public class Injector {
                         }
                         //once its gone through each dependency and created an object and stored the obj in the dependencyList,
                         //its time to feed the current class and the dependencyList to the Map
-                        dependencyMap.put(currentClass, objectList); //MAPPING the class and list of dependency objects that the class will use to create its own object.
+                        dependencyMap1.put(currentClass, objectList); //MAPPING the class and list of dependency objects that the class will use to create its own object.
                     }
+
                 }
             }
         }
-        return dependencyMap;
+
+        return dependencyMap1;
     }
 
 
