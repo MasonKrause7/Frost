@@ -5,6 +5,9 @@ public class Main {
 
     ApplicationContainer.start(Main.class);
 
+    Car car = new Car();
+
+
 
     }
 }
