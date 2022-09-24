@@ -12,10 +12,16 @@ public class Car extends Vehicle {
 
     }
 
-    @Inject
+
+    @Inject //injection for a constructor
     public Car(VehicleDriver drivee){
         System.out.printf("\n Driver ", drivee.getName());//inject the driver object here!!!!!!!!
-        //this.drivee = drivee;
+
+    }
+
+    @Inject //injection for a method --> Handling of this is not yet implemented in Injector class
+    public void drive(VehicleDriver drivee){
+        System.out.println("Vrooooommm");
     }
 
 }
