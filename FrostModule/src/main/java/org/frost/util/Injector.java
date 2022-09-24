@@ -24,10 +24,20 @@ public class Injector {
     }
 
     public Map mapClassObjects() throws Exception {
-        //need to use the map of classes to their dependencies, to instantiate an object of the class type.
+
+
+        //The objectMap is the counter-part to the classSet that ApplicationContainer has. It updates
+        //the classSet to not only be a list of all the classes, but a Map of all the Component classes with an instance of them as the value.
+
         Map<Class, Object> objectMap = new HashMap<>();
 
+
+
         Map<Class, List<Object>> dependencyMap = scanClasses();
+
+        //The dependency map is used to show the target class to make an object out of matched with all of its dependencies.
+        //This map makes it easy to see and use the direct dependencies for a class.
+
 
         System.out.println("dependencyMap : " + dependencyMap.entrySet().toString());//testing the dependency map
 
@@ -46,7 +56,7 @@ public class Injector {
                         //BUG - CANT FIGURE OUT HOW TO GET THE CORRECT NUMBER OF ARGUMENTS TO THE CONSTRUCTOR WITHOUT KNOWING THE PARAMETERS AHEAD OF TIME
                         //BECAUSE YOU CANT ITERATE THROUGH A LIST OF OBJECTS AND GIVE EACH ONE AS A PARAMETER TO THE CONSTRUCTOR
 
-                        //using magic numbers right now
+                        //using magic numbers right now but its working
 
 
 
