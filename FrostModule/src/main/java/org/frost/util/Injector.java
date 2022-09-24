@@ -16,12 +16,13 @@ public class Injector {
 
     private Set<Class<?>> classSet;
 
-    //contains classes that are marked with @component
-    private Map<Class, Class> classMap= new HashMap<>();
-    //contains parameters of constructors marked with @Inject
-    private Map<Class, Class[]> parameterTypes = new HashMap<>();
 
-    private Map<Class, Object> mappedObjects = new HashMap();
+    private Map<Class, Class> classMap= new HashMap<>();//Map of classes that are only annotated with @Component
+
+    private Map<Class, Class[]> parameterTypes = new HashMap<>(); //Map where key is the class, and the value is an array of parameters that were found in the
+                                                                  //constructor annotated with @Inject
+
+    private Map<Class, Object> mappedObjects = new HashMap();//key is the class, and the value is the instantiated object with dependencies.
 
 
 
@@ -38,7 +39,7 @@ public class Injector {
 
     public Map<Class, Object> getMappedObjects() {
         return mappedObjects;
-    }
+    }// getter method to make map accessible to application container
 
 
     public void mapClassObjects() throws Exception {
@@ -51,12 +52,17 @@ public class Injector {
 
     }
 
+
+
+    //creates objects to be added to the mappedObjects map.
     private void createParameterObjects() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-
+        //iterates through parameters types keys which is the class.
         for(Class classz : parameterTypes.keySet()) {
+            //list to add parameter objects.
             ArrayList<Object> objectList = new ArrayList<>();
+            // get the parameters of the current class type.
             Class[] paramters = parameterTypes.get(classz);
-
+            //iterate to parameters and instiate each one, then add object to objectList;
             for(Class parameter: paramters) {
                 Constructor constructor = parameter.getConstructor();
                 Object object = constructor.newInstance();
@@ -64,8 +70,13 @@ public class Injector {
 
             }
 
+            //convert object list to an array
             Object[] objectParameters = objectList.toArray();
+            //get specific constructor of class by passing the array objectParameters to getConstructor. the getConstructor method
+            //takes an array of classes and will return the specific constructor that matched the arraytypes.
             Constructor clientConstructor = classz.getConstructor(paramters);
+
+            //create new instance of object passing in the objectParameters as dependencies;
             Object clientObject = clientConstructor.newInstance(objectParameters);
             mappedObjects.put(classz,clientObject);
         }
@@ -73,6 +84,7 @@ public class Injector {
     }
 
     private void getComponentConstructors() {
+        //scans classMap and only gets the parameters of the constructor annotated with @Injecta and adds them to the parameterTypesMap.
         for(Class classz : classMap.keySet()) {
 
             Constructor[] constructors = classz.getConstructors();
@@ -89,7 +101,7 @@ public class Injector {
 
     private void getComponentClasses() {
 
-
+                //scans classess and only add classes that are annotated with @Component to the classMap
             for(Class classz : classSet) {
                 if(classz.isAnnotationPresent(Component.class)) {
                     classMap.put(classz,classz);
