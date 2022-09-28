@@ -17,23 +17,23 @@ public class Injector {
     private Set<Class<?>> classSet;
 
 
-    private Map<Class, Class> classMap= new HashMap<>();//Map of classes that are only annotated with @Component
+    private Map<Class, Class> classMap = new HashMap<>();//Map of classes that are only annotated with @Component
 
     private Map<Class, Class[]> parameterTypes = new HashMap<>(); //Map where key is the class, and the value is an array of parameters that were found in the
-                                                                  //constructor annotated with @Inject
+    //constructor annotated with @Inject
 
     private Map<Class, Object> mappedObjects = new HashMap();//key is the class, and the value is the instantiated object with dependencies.
 
 
-
-
-    public Injector(){
+    public Injector() {
 
     }
-    public Injector(Set<Class<?>> classSet){
+
+    public Injector(Set<Class<?>> classSet) {
         this.classSet = classSet;
     }
-    public void setClassSet(Set<Class<?>> classSet){
+
+    public void setClassSet(Set<Class<?>> classSet) {
         this.classSet = classSet;
     }
 
@@ -53,18 +53,17 @@ public class Injector {
     }
 
 
-
     //creates objects to be added to the mappedObjects map.
     private void createParameterObjects() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         //iterates through parameters types keys which is the class.
-        for(Class classz : parameterTypes.keySet()) {
+        for (Class classz : parameterTypes.keySet()) {
             //list to add parameter objects.
             ArrayList<Object> objectList = new ArrayList<>();
             // get the parameters of the current class type.
             Class[] paramters = parameterTypes.get(classz);
             //iterate to parameters and instiate each one, then add object to objectList;
-            for(Class parameter: paramters) {
-                Constructor constructor = parameter.getConstructor();
+            for (Class parameter : paramters) {
+                Constructor constructor = parameter.getConstructor();//if class needs object parameter dependency, iterate and get paramters.
                 Object object = constructor.newInstance();
                 objectList.add(object);
 
@@ -78,21 +77,21 @@ public class Injector {
 
             //create new instance of object passing in the objectParameters as dependencies;
             Object clientObject = clientConstructor.newInstance(objectParameters);
-            mappedObjects.put(classz,clientObject);
+            mappedObjects.put(classz, clientObject);
         }
 
     }
 
     private void getComponentConstructors() {
         //scans classMap and only gets the parameters of the constructor annotated with @Injecta and adds them to the parameterTypesMap.
-        for(Class classz : classMap.keySet()) {
+        for (Class classz : classMap.keySet()) {
 
             Constructor[] constructors = classz.getConstructors();
 
-            for(Constructor constructor : constructors) {
-                if(constructor.isAnnotationPresent(Inject.class)) {
+            for (Constructor constructor : constructors) {
+                if (constructor.isAnnotationPresent(Inject.class)) {//need to add validiations to ensure only one constructor or field has @Inject annotation
                     Class[] parameters = constructor.getParameterTypes();
-                      parameterTypes.put(classz,parameters);
+                    parameterTypes.put(classz, parameters);
                 }
             }
 
@@ -101,17 +100,17 @@ public class Injector {
 
     private void getComponentClasses() {
 
-                //scans classess and only add classes that are annotated with @Component to the classMap
-            for(Class classz : classSet) {
-                if(classz.isAnnotationPresent(Component.class)) {
-                    classMap.put(classz,classz);
-
-                }
-
+        //scans classess and only add classes that are annotated with @Component to the classMap
+        for (Class classz : classSet) {
+            if (classz.isAnnotationPresent(Component.class)) {
+                classMap.put(classz, classz);
 
             }
 
 
         }
+
+
+    }
 
 }
