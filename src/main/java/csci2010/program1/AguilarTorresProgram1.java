@@ -21,10 +21,8 @@ public class AguilarTorresProgram1 {
         this.albumCollection = albumCollection;
         this.playlist = playlist;
 
-
-
-
-
+    }
+    public AguilarTorresProgram1(){
 
     }
 
