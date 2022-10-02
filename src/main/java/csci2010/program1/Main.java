@@ -4,10 +4,23 @@ import org.frost.util.ApplicationContainer;
 
 public class Main {
     public static void main(String[] args) {
-        ApplicationContainer.start(Main.class);
+
         ApplicationContainer applicationContainer = new ApplicationContainer();
+        applicationContainer.start(Main.class);
+
+        /*
+        System.out.print("keys in client map: ");
+        for (Class classz: applicationContainer.getClientObjects().keySet() ) {
+            System.out.print(" "+classz.getName());
+        }
+        */
+
+
+
         AguilarTorresProgram1 aguilarTorresProgram1 = (AguilarTorresProgram1) applicationContainer.getObject(AguilarTorresProgram1.class);
         aguilarTorresProgram1.start();
+
+
 
 
     }

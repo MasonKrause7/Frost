@@ -26,6 +26,9 @@ public class Album {
         copyTrackList(trackList, this.trackList);
 
     }
+    public Album(){
+
+    }
 /**
  * 
  * @return title

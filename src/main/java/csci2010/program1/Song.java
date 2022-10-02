@@ -28,6 +28,9 @@ public class Song {
         this.length = toSeconds(minutes, seconds);
 
     }
+    public Song(){
+
+    }
   /**
    * 
    * @return  title of song.
