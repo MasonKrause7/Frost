@@ -1,12 +1,11 @@
 package org.frost.util;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Scans all packages and sub-packages of the clients Main Class and returns a collection of classes to be
