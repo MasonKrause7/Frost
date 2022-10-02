@@ -1,7 +1,9 @@
 package org.frost.util;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,25 +13,32 @@ import java.lang.annotation.*;
 
 public class ApplicationContainer {
 
-   private static Map<Class, Object> clientObjects = new HashMap<>();
+   private Map<Class, Object> clientObjects;
     /**
      * /called by the client main method
      * @param mainClass
      */
-   public static void start(Class<?> mainClass)  {
-        PackageScanner packageScanner = new PackageScanner();
+    private Map<Class, Object> getClientObjects() {
+        return clientObjects;
+    }
+   public void start(Class<?> mainClass) {
+       PackageScanner packageScanner = new PackageScanner(mainClass);
 
-
-       Set<Class<?>> classSet = packageScanner.scanPath(mainClass);
-
-       Injector injector = new Injector(classSet);
+       Set<Class<?>> classSet = null;
 
        try {
-           injector.mapClassObjects();
-       } catch (Exception e) {
-           throw new RuntimeException(e);
+          classSet = packageScanner.scan();
+       } catch (IOException e) {
+           e.printStackTrace();
        }
-       clientObjects = injector.getMappedObjects();
+
+        try {
+            ComponentCreator componentCreator = new ComponentCreator(classSet);
+            this.clientObjects = componentCreator.getClientMap();
+        } catch (Exception e) {
+            System.out.println("Error getting clientMap from ComponentCreator....");
+            System.out.println(e.getMessage());
+        }
 
 
 
