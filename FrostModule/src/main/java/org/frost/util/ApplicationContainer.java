@@ -14,10 +14,7 @@ import java.lang.annotation.*;
 public class ApplicationContainer {
 
    private Map<Class, Object> clientObjects;
-    /**
-     * /called by the client main method
-     * @param mainClass
-     */
+
     private Map<Class, Object> getClientObjects() {
         return clientObjects;
     }
