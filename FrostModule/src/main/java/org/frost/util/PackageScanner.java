@@ -34,7 +34,9 @@ public class PackageScanner {
     //returns Hashset of classes
      public Set<Class<?>> scan() throws IOException {
          getClasses(topLevelDir);
-
+        for(Class classz : loadedClasses) {
+            System.out.println(classz.getName());
+        }
          return this.loadedClasses;
 
      }
@@ -57,13 +59,12 @@ public void getClasses(String path) throws IOException {
                 packagesTraversed--;
             }
             loadedClasses.add(stingToClass(line,path));//loads Class to loadedClasses Set after returning class type;
-            System.out.println(line);
+
 
         } else {
 
             path += "." + line;// if no .class is found in the above if statement, line is a package and is appended to the path to create a new fully-qualified path to the package found.
             packagesTraversed++;//increment traversed packages.
-            System.out.println(line);
             getClasses(path); //recursivley call getClasses passing the new fully qualified package name where an new resource stream is created for that package.
                               //if classes are found in the package, classes will be loaded to the loadeadClasses Set, that the path will be reset rescanning a new package.
 
