@@ -1,12 +1,11 @@
-package org.frost.util;
+package org.frost.util.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD,ElementType.CONSTRUCTOR, ElementType.FIELD})
-public @interface Inject {
+@Target(ElementType.TYPE)
+public @interface Component {
+
 }

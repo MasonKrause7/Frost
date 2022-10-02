@@ -1,7 +1,7 @@
 package csci2010.program1;
 
 
-import org.frost.util.Component;
+import org.frost.util.annotations.Component;
 
 /**
  *

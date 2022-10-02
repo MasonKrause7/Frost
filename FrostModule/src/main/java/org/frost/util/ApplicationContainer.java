@@ -1,8 +1,12 @@
 package org.frost.util;
 
+import org.frost.util.applicationserver.TomcatServer;
+
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -10,47 +14,25 @@ import java.util.Set;
 import java.lang.annotation.*;
 
 public class ApplicationContainer {
+    private static TomcatServer tomcatServer = new TomcatServer();
 
-   private static Map<Class, Object> clientObjects = new HashMap<>();
-    /**
-     * /called by the client main method
-     * @param mainClass
-     */
-   public static void start(Class<?> mainClass)  {
-        PackageScanner packageScanner = new PackageScanner();
+    private static Map<Class, Object> clientObjects = new HashMap<>();
 
 
-       Set<Class<?>> classSet = packageScanner.scanPath(mainClass);
+    public static void start(Class<?> mainClass) throws IOException {
 
-       Injector injector = new Injector(classSet);
+        PackageScanner packageScanner = new PackageScanner(mainClass);
+        Set<Class<?>> classSet = packageScanner.scan();
+        Injector injector = new Injector(classSet);
 
-       try {
-           injector.mapClassObjects();
-       } catch (Exception e) {
-           throw new RuntimeException(e);
-       }
-       clientObjects = injector.getMappedObjects();
+        try {
+            injector.mapClassObjects();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        clientObjects = injector.getMappedObjects();
 
-
-
-   }
-
-   public Object getObject(Class classz) {
-       Object ob = null;
-       try {
-
-           ob = clientObjects.get(classz);
-           if(ob == null) {
-               throw new Exception("Object of Class " + classz.getName() + ".class not Found");
-           }
-
-       } catch (Exception e) {
-           e.printStackTrace();
-       }
-
-       return ob;
-   }
-
+    }
 
 
 }

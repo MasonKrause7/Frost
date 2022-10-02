@@ -1,10 +1,12 @@
 package org.frost.util;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Set;
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Scans all packages and sub-packages of the clients Main Class and returns a collection of classes to be
@@ -12,74 +14,72 @@ import java.util.stream.Collectors;
  */
 public class PackageScanner {
 
-    /**
-     * Scans all packages and sub-packages of the clients Main Class and returns a collection of classes to be
-     * maintained by the Application Container.
-     */
-    public Set<Class<?>> scanPath(Class<?> mainClass) {
-        /*
-         * String representation of the classpath for the all the packages and subpackages of the main class.
-         * Example: org.frost.util
-         */
-        String path = mainClass.getPackageName();
-        /*
-         * String formatted, so it can be passed as a parameter to the classloader.Replaces all "." with "/"
-         * Example: (before) org.frost.util -> (after) org/frost/util
-         *
-         */
-        String formattedPackagePath = path.replaceAll("[.]", "/");
+     private String topLevelDir;
+     private Set<Class<?>> loadedClasses;
+     private Class<?> mainClass;
 
-        InputStream classStream = loadedClasses(formattedPackagePath);
-        /*
-         * Wraps classStream in order to be able to read lines at a time.
-         */
-        BufferedReader read = new BufferedReader(new InputStreamReader(classStream));
 
-        return read.lines()
-                /*
-                 * filters lines by checking if stream ends with ".class"
-                 */
-                .filter(streamLine -> streamLine.endsWith(".class"))
-                /*
-                 * returns transformed stream of the return type applied by the method
-                 */
-                .map(streamLine -> convertToClass(streamLine,path))
-                /*
-                 * accumulates stream into a Set
-                 */
-                .collect(Collectors.toSet());
 
+     private PackageScanner() {
+
+     }
+
+     public PackageScanner(Class<?> mainClass) {
+
+         this.loadedClasses = new HashSet<>();//hashset of all Classes in the application classpath
+         this.topLevelDir = mainClass.getPackageName();//path to the first package
+         this.mainClass = mainClass;
+     }
+
+    //returns Hashset of classes
+     public Set<Class<?>> scan() throws IOException {
+         getClasses(topLevelDir);
+
+         return this.loadedClasses;
+
+     }
+
+
+    //scans through all the packages recursively finding classes and loading them to he loadedClasses Hashset;
+public void getClasses(String path) throws IOException {
+
+
+    InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(path.replaceAll("[.]", "/"));//gets  resources from toplevel package and returns as a stream
+    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));//wraps stream in Buffered reader to reade lines
+    String line;
+    int packagesTraversed= 0;//tracks how many packages have been traversed.
+
+    while ((line = reader.readLine()) != null) {//execute only if reader is not empty
+
+        if (line.endsWith(".class")) {//checks if resource ends in .class if true, pass string name and path to stringToClass() method to get Class.
+            while(packagesTraversed > 0) {//if more than one package has been traversed, reset path the top level directory.
+                path = path.substring(0,path.lastIndexOf("."));
+                packagesTraversed--;
+            }
+            loadedClasses.add(stingToClass(line,path));//loads Class to loadedClasses Set after returning class type;
+            System.out.println(line);
+
+        } else {
+
+            path += "." + line;// if no .class is found in the above if statement, line is a package and is appended to the path to create a new fully-qualified path to the package found.
+            packagesTraversed++;//increment traversed packages.
+            System.out.println(line);
+            getClasses(path); //recursivley call getClasses passing the new fully qualified package name where an new resource stream is created for that package.
+                              //if classes are found in the package, classes will be loaded to the loadeadClasses Set, that the path will be reset rescanning a new package.
+
+        }
 
     }
 
-    /**
-     * @param path String value representing the path that should be scanned
-     * @return stream of all resources in class path
-     */
-    private InputStream loadedClasses(String path) {
-        InputStream classStream = ClassLoader.getSystemResourceAsStream(path);
-        return classStream;
-    }
+}
 
-    /*
-     * Takes a name of the class as a string and the path for the class and returns a class type object.
-     * uses Class.forName() which requires the fully qualified package name and class. Because path only provides the package name, the class name needs
-     * to be appended to the path and the ".class" needs to be removed in order for class to be returned.
-     * Example: path = org.frost.util      class name = MyClass.class  must be "org.frost.util.MyClasss" in order for Class.forName to return class type.
-     *
-     * @param clasName String representation of the class type to be converted to a class.
-     * @param path     fully package path of the class
-     * @return return class type
-     */
-    private Class<?> convertToClass(String clasName, String path){
-        /*
-         * gets the path appends a "."then appends the class all the way up to the "." which in not inclusive.
-         *
-         * Example: path = org.frost.util "." class name = MyClass.class
-         *                                 ^(appended)            ^(append up to the ".";not included)
-         *       fullyQulifiedName = org.frost.util.MyClass
-         */
-        String fullyQulifedName = path + "." + clasName.substring(0, clasName.lastIndexOf("."));//CHANGED TO TEST - Removed the "." from the middle of path and clasName
+
+
+    //takes string class name and path fully qualified path to class and converts it to a string.
+    private Class<?> stingToClass(String className, String path){
+
+        String fullyQulifedName = path + "." + className.substring(0, className.lastIndexOf("."));//concatenates path and class. replace all the "." with "/" to
+                                                                                                        //to be passed to the Class.forName();
         Class classz = null;
         try {
             classz = Class.forName(fullyQulifedName);
@@ -87,10 +87,15 @@ public class PackageScanner {
             throw new RuntimeException(e);
         }
 
-        return classz;
+        return classz;//returns class.
 
 
     }
+
+
+
+
+
 
 
 }

@@ -17,6 +17,14 @@
             <artifactId>FrostModule</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
+
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>10.0.23</version>
         </dependency>
     </dependencies>
 
