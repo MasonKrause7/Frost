@@ -16,7 +16,6 @@ public class ApplicationContainer {
    private Map<Class, Object> clientObjects;
     /**
      * /called by the client main method
-     * @param mainClass
      */
     private Map<Class, Object> getClientObjects() {
         return clientObjects;
@@ -34,7 +33,7 @@ public class ApplicationContainer {
 
         try {
             ComponentCreator componentCreator = new ComponentCreator(classSet);
-            this.clientObjects = componentCreator.getClientMap();
+            this.clientObjects = componentCreator.getComponentMap();
         } catch (Exception e) {
             System.out.println("Error getting clientMap from ComponentCreator....");
             System.out.println(e.getMessage());

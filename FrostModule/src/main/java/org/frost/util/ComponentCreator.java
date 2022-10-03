@@ -16,6 +16,11 @@ import java.util.*;
 //This class only has a public constructor that takes the classSet as an argument, and uses it to create the other maps,
     //ending with the client map
 //And only has one public getter method to get the clientMap.
+
+//One note...: it only actually creates clientObjects if the constructor is marked w/ @inject...
+//need to edit to where it creates each component object for the clientMap, even if it uses the default constructor to do so
+//because the component class may not have a constructor with @inject but it still needs to be made.
+
 public class ComponentCreator {
 
 
@@ -24,7 +29,6 @@ public class ComponentCreator {
     private Map<Constructor<?>, Class<?>[]> injectableConstructorMap;//holds the @inject constructors mapped to their parameters
 
 
-    private Map<Class, Object> clientMap; //hold the class with its object, dependencies already injected.
 
 
 
@@ -36,8 +40,8 @@ public class ComponentCreator {
         mapClientObjects();
 
     }
-    public Map<Class, Object> getClientMap(){
-        return clientMap;
+    public Map<Class, Object> getComponentMap(){
+        return componentMap;
     }
 
     //uses the classSet to find the @Components, creates a new instance of each component, creates componentMap<componentClass, componentObject>
@@ -77,7 +81,11 @@ public class ComponentCreator {
     //NEXT STEP --> use the class[] in the injectableConstructorMap to inject the objects of the same type to that constructor.
     private void mapClientObjects() throws NullPointerException{
 
-        Map<Class, Object> clientMap = new HashMap<>();
+        //this is where I need to implement the changes to the way the clientMap is made
+        //should be creating an object of every component for the client map, not just the
+        //objects that take dependencies.
+
+
         for (Constructor c : injectableConstructorMap.keySet()) {
             //for each constructor in the injectableConstructorMap, get the array of parameters that are its value
             List<Object> obList = new ArrayList<>(); //creates a new list that holds each genericObject matching the parameters
@@ -91,7 +99,14 @@ public class ComponentCreator {
             Object[] obArr = obList.toArray();//once all parameter objects are added to list, convert it to array.
             try {
                 Object clientObject = c.newInstance(obArr);//use the array of objects to create newInstance of client obj
-                clientMap.put(c.getDeclaringClass(), clientObject);//mapping the class to its clientObj
+
+
+
+                componentMap.replace(c.getDeclaringClass(),componentMap.get(c.getDeclaringClass()), clientObject);
+                //^^^^^^^ replaces the genericObject in componentMap for the clientObject, which is a new instance that
+                //has its dependencies injected. Updating the component map instead of mapping to the clientMap
+                //allows the classes with no @inject constructor to still have an object created of their type
+
                 //System.out.println("Added clientObj of type "+ c.getDeclaringClass().getName() +" to clientMap"); <--TEST LINE
             }
             catch(Exception e){
@@ -99,6 +114,5 @@ public class ComponentCreator {
                 e.getMessage();
             }
         }
-    this.clientMap = clientMap;
     }
 }
