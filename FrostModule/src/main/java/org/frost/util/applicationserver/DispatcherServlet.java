@@ -16,7 +16,7 @@ public class DispatcherServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-
+        System.out.println(req.getRequestURI());
 
         resp.getWriter().println("<html><body><h1>" + resolver.getRequest(req.getRequestURI()) + "</h1></body></hmtl>");
 
