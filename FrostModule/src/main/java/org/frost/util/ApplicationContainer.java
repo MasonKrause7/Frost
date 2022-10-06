@@ -1,5 +1,7 @@
 package org.frost.util;
 
+import org.frost.util.applicationserver.TomcatServer;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -12,33 +14,31 @@ import java.util.Set;
 import java.lang.annotation.*;
 
 public class ApplicationContainer {
+    private TomcatServer tomcatServer;
+   private static Map<Class, Object> clientObjects;
 
-   private Map<Class, Object> clientObjects;
-    /**
-     * /called by the client main method
-     * @param mainClass
-     */
-    private Map<Class, Object> getClientObjects() {
+    public static Map<Class, Object> getComponents() {
         return clientObjects;
     }
+
    public void start(Class<?> mainClass) {
        PackageScanner packageScanner = new PackageScanner(mainClass);
+       tomcatServer = new TomcatServer();
 
        Set<Class<?>> classSet = null;
 
-       try {
-          classSet = packageScanner.scan();
-       } catch (IOException e) {
-           e.printStackTrace();
-       }
+       classSet = packageScanner.scan();
 
-        try {
+       try {
             ComponentCreator componentCreator = new ComponentCreator(classSet);
-            this.clientObjects = componentCreator.getClientMap();
+            clientObjects = componentCreator.getComponentMap();
         } catch (Exception e) {
             System.out.println("Error getting clientMap from ComponentCreator....");
             System.out.println(e.getMessage());
         }
+       tomcatServer.start();
+
+
 
 
 

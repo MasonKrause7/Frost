@@ -1,14 +1,19 @@
-package csci2010.program1;
+package org.example;
 
+import org.example.controllers.HomeController;
 import org.frost.util.ApplicationContainer;
+import org.frost.util.URLResolver;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class Main {
     public static void main(String[] args) {
-
         ApplicationContainer applicationContainer = new ApplicationContainer();
         applicationContainer.start(Main.class);
-        AguilarTorresProgram1 aguilarTorresProgram1 = (AguilarTorresProgram1) applicationContainer.getObject(AguilarTorresProgram1.class);
-        aguilarTorresProgram1.start();
+
+
+
+
 
 
     }
