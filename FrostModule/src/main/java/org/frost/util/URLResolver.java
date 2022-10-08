@@ -1,4 +1,5 @@
 package org.frost.util;
+import com.google.gson.Gson;
 import org.frost.util.annotations.Controller;
 import org.frost.util.annotations.GetMapping;
 import org.frost.util.annotations.PostMapping;
@@ -8,26 +9,47 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * maps url paths to appropriate class which will later be used to access the objects in the component map to invoke methods.
+ */
+
 public class URLResolver {
-private Map<Class, Object> componentMap = ApplicationContainer.getComponents();
-private Map<String,Class> urlMap = new HashMap<>();
+    /**
+     * library used to convert method return data to json
+     */
+    private Gson gson = new Gson();
 
+    /**
+     * componentMap from the application container
+     */
+    private Map<Class, Object> componentMap = ApplicationContainer.getComponents();
 
+    /**
+     * Maps url path to the corresponding class.
+     */
+    private Map<String,Class> urlMap = new HashMap<>();
+
+    /**
+     * maps all urls upon construction of object
+     */
     public URLResolver() {
         mapUrls();
 
     }
 
+    /**
+     * maps all url paths to corresponding classes.
+     */
     public void mapUrls() {
-        for(Class classz:componentMap.keySet()) {
-            if (classz.isAnnotationPresent(Controller.class)) {
-                Method[] methods = classz.getMethods();
-                for (Method method : methods) {
-                    if (method.isAnnotationPresent(GetMapping.class)) {
-                        urlMap.put(method.getAnnotation(GetMapping.class).value(), classz);
+        for(Class classz:componentMap.keySet()) {//iterate through component map
+            if (classz.isAnnotationPresent(Controller.class)) {//check for controller annotation
+                Method[] methods = classz.getMethods();//get all methods of the class
+                for (Method method : methods) {//iterate through all methods
+                    if (method.isAnnotationPresent(GetMapping.class)) {//check if GetMapping annotation is present
+                        urlMap.put(method.getAnnotation(GetMapping.class).value(), classz);//get the annotations value(ex.("/home") and store it in map as key, and the class as the value
                         System.out.println("Url mapping is " + method.getAnnotation(GetMapping.class).value());
                     }
-                    else if(method.isAnnotationPresent(PostMapping.class)) {
+                    else if(method.isAnnotationPresent(PostMapping.class)) {//same as get mapping but with PostMapping
                         urlMap.put(method.getAnnotation(PostMapping.class).value(),classz);
                     }
                 }
@@ -36,29 +58,37 @@ private Map<String,Class> urlMap = new HashMap<>();
         }
     }
 
+    /**
+     * Any get request will use this method to invoke the proper methods
+     * @param url
+     * @return
+     */
+
     public String getRequest(String url) {
-        String string = null;
-        if(!url.equals("/faveicon.ico")) {
-            Class<?>  classz = urlMap.get("/");
-            Method[] methods = classz.getMethods();
+        String string = null;//set to null, will append string response later after return is converted to json
+        if(!url.equals("/faveicon.ico")) {//ignore favicon path
+            Class<?>  classz = urlMap.get(url);//pass the url argument to the urlMap to get the appropriate class. these were mapped previously by the mapUrls method
+            Method[] methods = classz.getMethods();//get all the methods of that class
             for(Method method : methods) {
-                if(method.isAnnotationPresent(GetMapping.class) && method.getAnnotation(GetMapping.class).value().equals(url)) {
+                if(method.isAnnotationPresent(GetMapping.class) && method.getAnnotation(GetMapping.class).value().equals(url)) {//iterate through and find the get mapping annotation and get the value of the annotation and compare
+                                                                                                                                 //it to the url argument if true invoke method.
                     try {
-                        string = (String) method.invoke(componentMap.get(classz));
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    } catch (InvocationTargetException e) {
+                        string = gson.toJson(method.invoke(componentMap.get(classz)));//method.invoke() requires the object the method is in to order for it to work.
+                                                                                      //so we pass the class that we are in to the componentMap to get to proper object to pass
+                                                                                        // method is wrapped in the gson.toJson method to convert returned data to json
+                    } catch (IllegalAccessException | InvocationTargetException e) {
                         throw new RuntimeException(e);
                     }
                 }
             }
 
+
         }
-        return string;
-
-
+        return string; // json string sent back to dispatcher servlet
 
     }
+
+
 
 
 }

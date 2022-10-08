@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import org.example.repository.Item;
 import org.example.repository.TestDataBase;
 import org.frost.util.annotations.Component;
 import org.frost.util.annotations.Controller;
@@ -9,18 +10,21 @@ import org.w3c.dom.html.HTMLObjectElement;
 
 @Controller
 public class HomeController {
-private TestDataBase testDataBase;
+
     public HomeController() {
 
     }
+
+    private TestDataBase testDataBase;
     @Inject
     public HomeController(TestDataBase testDataBase) {
-    this.testDataBase = testDataBase;
+
+        this.testDataBase = testDataBase;
     }
     @GetMapping("/")
-    public String getHome () {
+    public Item[] getHome () {
 
-        return testDataBase.getItem();
+        return testDataBase.getMenu();
     }
     @GetMapping("/getmessage")
     public String getMessage() {

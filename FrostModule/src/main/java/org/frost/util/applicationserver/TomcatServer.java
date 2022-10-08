@@ -4,6 +4,9 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.Context;
 
+/**
+ * Configured so all request are forwarded to the DispatcherServlet
+ */
 public class TomcatServer  {
 
     private Tomcat tomcat = new Tomcat();
