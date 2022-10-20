@@ -1,13 +1,18 @@
-package org.example.repository;
+package org.example.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "menu")
 public class Item {
+    public Item(){};
+    @Id
+    @GeneratedValue
+    private int id;
+    @Column(name = "name")
     private String name;
+    @Column(name = "price")
     private double price;
-
-    public Item(String name, double price ) {
-        this.name = name;
-        this.price = price;
-    }
 
     public String getName() {
         return name;
@@ -22,6 +27,11 @@ public class Item {
     }
 
     public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public Item(String name, double price) {
+        this.name = name;
         this.price = price;
     }
 }

@@ -3,9 +3,14 @@ import com.google.gson.Gson;
 import org.frost.util.annotations.Controller;
 import org.frost.util.annotations.GetMapping;
 import org.frost.util.annotations.PostMapping;
+import org.frost.util.annotations.RequestBody;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +52,7 @@ public class URLResolver {
                 for (Method method : methods) {//iterate through all methods
                     if (method.isAnnotationPresent(GetMapping.class)) {//check if GetMapping annotation is present
                         urlMap.put(method.getAnnotation(GetMapping.class).value(), classz);//get the annotations value(ex.("/home") and store it in map as key, and the class as the value
-                        System.out.println("Url mapping is " + method.getAnnotation(GetMapping.class).value());
+
                     }
                     else if(method.isAnnotationPresent(PostMapping.class)) {//same as get mapping but with PostMapping
                         urlMap.put(method.getAnnotation(PostMapping.class).value(),classz);
@@ -85,6 +90,37 @@ public class URLResolver {
 
         }
         return string; // json string sent back to dispatcher servlet
+
+    }
+
+    public void postRequest(String item, String path) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        System.out.println("path " + path);
+        Class c = urlMap.get(path);
+        Method[] methods = c.getMethods();
+        for(Method method: methods) {
+            if(method.isAnnotationPresent(PostMapping.class) && method.getAnnotation(PostMapping.class).value().equals(path)) {
+                Class[] classes = method.getParameterTypes();
+                Class classz = classes[0];
+                Object ob = gson.fromJson(item,classz);
+
+                try {
+                    method.invoke(componentMap.get(c),ob);
+                } catch (InvocationTargetException ex) {
+                    System.out.println(ex.getCause());
+                }
+
+
+
+
+
+
+
+
+
+
+            }
+
+        }
 
     }
 

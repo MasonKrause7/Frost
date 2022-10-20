@@ -1,10 +1,15 @@
 package org.frost.util;
 
+import jakarta.persistence.Entity;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,6 +21,8 @@ public class PackageScanner {
     private String topLevelDir;
     private Set<Class<?>> loadedClasses;
 
+    private List<Class> annotatedClasses;
+
 
     private PackageScanner() {
 
@@ -25,25 +32,25 @@ public class PackageScanner {
 
         this.loadedClasses = new HashSet<>();//hashset of all Classes in the application classpath
         this.topLevelDir = mainClass.getPackageName();//path to the first package
+        this.annotatedClasses = new ArrayList();//for specific classes needing to be found
+
+
 
     }
 
     /**
      * Testing java docs
+     *
      * @return method returns a set
      */
-    public Set<Class<?>> scan()  {
+    public Set<Class<?>> scan() {
 
-            getClasses(topLevelDir);
-            if(loadedClasses.isEmpty()) {
-                throw new RuntimeException("No Classes were loaded in map");
-            } else {
-                return this.loadedClasses;
+        getClasses(topLevelDir);
+        if (loadedClasses.isEmpty()) {
+            throw new RuntimeException("No Classes were loaded in map");
+        } else {
+            return this.loadedClasses;
         }
-
-
-
-
 
 
     }
@@ -83,7 +90,57 @@ public class PackageScanner {
         }
 
 
+
     }
+      //uses private helper method(overloaded getClasses()) to find and return all classes with specific annotation
+     public List<Class> finAnnotatedClasses(Class annotatedClass) {
+        annotatedClasses.clear();// clear the current sets values before iterating
+        getClasses(topLevelDir,annotatedClass);
+        return annotatedClasses;
+     }
+    //overloads getClasses()
+    private void getClasses(String path,Class annotatedClass) {
+
+
+        InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(path.replaceAll("[.]", "/"));//gets  resources from toplevel package and returns as a stream
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));//wraps stream in Buffered reader to reade lines
+        String line;
+        int packagesTraversed = 0;//tracks how many packages have been traversed.
+        try {
+            while ((line = reader.readLine()) != null) {//execute only if reader is not empty
+
+                if (line.endsWith(".class")) {//checks if resource ends in .class if true, pass string name and path to stringToClass() method to get Class.
+                    while (packagesTraversed > 0) {//if more than one package has been traversed, reset path the top level directory.
+                        path = path.substring(0, path.lastIndexOf("."));
+                        packagesTraversed--;
+                    }
+
+                    //convert to class then check annotation, add to annotatedClass list if true
+                    Class<?> classz = stingToClass(line,path);
+                    if(classz.isAnnotationPresent(annotatedClass)) {
+                        annotatedClasses.add(classz);
+                    }
+
+
+
+                } else {
+
+                    path += "." + line;// if no .class is found in the above if statement, line is a package and is appended to the path to create a new fully-qualified path to the package found.
+                    packagesTraversed++;//increment traversed packages.
+                    getClasses(path,annotatedClass); //recursivley call getClasses passing the new fully qualified package name where an new resource stream is created for that package.
+                    //if classes are found in the package, classes will be loaded to the loadeadClasses Set, that the path will be reset rescanning a new package.
+
+                }
+
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("No Resources Found");
+        }
+
+
+
+    }
+
 
 
     //takes string class name and path fully qualified path to class and converts it to a string.
