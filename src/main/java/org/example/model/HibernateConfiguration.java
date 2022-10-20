@@ -33,9 +33,11 @@ public class HibernateConfiguration {
 
 
         //standard operations to be performed when open and closing connections
+        //registry is build using the configuration properties
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties()).build();
-        //factory used to open sessions
+        //return factory used to open sessions
+        //sessionIsFactory is static so only one instance is utilized
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
         System.out.println(sessionFactory == null);
         return sessionFactory;
