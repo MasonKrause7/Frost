@@ -96,6 +96,7 @@ public class PackageScanner {
      public List<Class> finAnnotatedClasses(Class annotatedClass) {
         annotatedClasses.clear();// clear the current sets values before iterating
         getClasses(topLevelDir,annotatedClass);
+
         return annotatedClasses;
      }
     //overloads getClasses()
@@ -104,6 +105,7 @@ public class PackageScanner {
 
         InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(path.replaceAll("[.]", "/"));//gets  resources from toplevel package and returns as a stream
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));//wraps stream in Buffered reader to reade lines
+
         String line;
         int packagesTraversed = 0;//tracks how many packages have been traversed.
         try {
@@ -115,9 +117,12 @@ public class PackageScanner {
                         packagesTraversed--;
                     }
 
+
                     //convert to class then check annotation, add to annotatedClass list if true
                     Class<?> classz = stingToClass(line,path);
+
                     if(classz.isAnnotationPresent(annotatedClass)) {
+                        System.out.println("We made it");
                         annotatedClasses.add(classz);
                     }
 
