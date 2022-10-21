@@ -1,39 +1,41 @@
 package org.example;
 
-import jakarta.persistence.Entity;
-import org.example.model.*;
-import org.frost.CRUDImplementation;
-import org.frost.util.ApplicationContainer;
-import org.frost.util.PackageScanner;
-import org.frost.util.ProxyFactory;
-import org.frost.util.annotations.Repository;
-
-
-import java.lang.reflect.Proxy;
-import java.util.List;
+import org.example.model.HibernateConfiguration;
+import org.example.model.Student;
+import org.example.model.StudentRepository;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 
 public class Main {
 
-    @SuppressWarnings("unchecked")
-    static <T> T getProxyObject( Class<T> interfOutput) {
-        return  (T) Proxy.newProxyInstance(interfOutput.getClassLoader(),new Class[] {interfOutput}, new ProxyFactory(new CRUDImplementation<>()));
+   // @SuppressWarnings("unchecked")
+    //static <T> T getProxyObject( Class<T> interfOutput) {
+      //  return  (T) Proxy.newProxyInstance(interfOutput.getClassLoader(),new Class[] {interfOutput}, new ProxyFactory(new CRUDImplementation<>()));
 
-    }
+    //}
     public static void main(String[] args) {
       // ApplicationContainer applicationContainer = new ApplicationContainer();
       // applicationContainer.start(Main.class);
 
 
-         PackageScanner scanner = new PackageScanner(Main.class);
-         List<Class> list = scanner.finAnnotatedClasses(Repository.class);
-        for(Class classz : list) {
-            System.out.println(classz.getName());
-            var object = getProxyObject();
-            printClass(object);
 
-        }
 
+
+        Student s1 = new Student();
+
+        s1.setFirstName("Mason");
+        s1.setLastName("Krause");
+        s1.setEmail("masongkrause@yahoo.com");
+
+        SessionFactory sf = HibernateConfiguration.getSessionFactory();
+        Session smokesesh = sf.openSession();
+        Transaction t = smokesesh.beginTransaction();
+        smokesesh.persist(s1);
+        t.commit();
+        System.out.println(s1.getFirstName() + " succesfully saved");
+        smokesesh.close();
 
 
 

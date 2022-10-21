@@ -1,12 +1,9 @@
 package org.frost.util;
 
-import jakarta.persistence.Entity;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -122,7 +119,6 @@ public class PackageScanner {
                     Class<?> classz = stingToClass(line,path);
 
                     if(classz.isAnnotationPresent(annotatedClass)) {
-                        System.out.println("We made it");
                         annotatedClasses.add(classz);
                     }
 

@@ -6,15 +6,15 @@ import org.frost.util.PackageScanner;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Properties;
 
 public class HibernateConfiguration {
+
+
     private  static SessionFactory sessionFactory;
+
 
     public static SessionFactory getSessionFactory() {
         //configuration object used for session factory, when instatiated like this, hibernate will automatically
@@ -39,7 +39,7 @@ public class HibernateConfiguration {
         //return factory used to open sessions
         //sessionIsFactory is static so only one instance is utilized
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-        System.out.println(sessionFactory == null);
+
         return sessionFactory;
 
 
