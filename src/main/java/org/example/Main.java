@@ -2,7 +2,6 @@ package org.example;
 
 import org.example.model.HibernateConfiguration;
 import org.example.model.Student;
-import org.example.model.StudentRepository;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -42,7 +41,5 @@ public class Main {
 
 
     }
-    private static void printClass(StudentRepository ob) {
 
-    }
 }
